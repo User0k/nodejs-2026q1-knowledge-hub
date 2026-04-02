@@ -19,6 +19,11 @@ export class UserService {
   }
 
   async updatePassword(id: string, updateDto: UpdatePasswordDto) {
+    const user = this.db.getOne(id);
+    if (!user || user.password !== updateDto.oldPassword) {
+      return null;
+    }
+
     return this.db.updatePassword(id, updateDto);
   }
 

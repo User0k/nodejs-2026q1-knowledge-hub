@@ -11,8 +11,10 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdatePasswordDto } from './user.dto';
+import { CreateUserDto, UpdatePasswordDto, UserResponseDto } from './user.dto';
+import { User } from './user.interface';
 
 @Controller('/user')
 export class UserController {
@@ -20,21 +22,22 @@ export class UserController {
 
   @Get()
   async getAll() {
-    return this.userService.getAll();
+    const users = await this.userService.getAll();
+    return users.map((user) => this.toResponseDto(user));
   }
 
   @Get(':id')
   async getOne(@Param('id', new ParseUUIDPipe()) id: string) {
     const user = await this.userService.getOne(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.toResponseDto(user);
   }
 
   @Post()
   async create(@Body() userDto: CreateUserDto) {
-    return this.userService.create(userDto);
+    const user = await this.userService.create(userDto);
+    return this.toResponseDto(user);
   }
 
   @Put(':id')
@@ -46,7 +49,7 @@ export class UserController {
     if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
-    return updatedUser;
+    return this.toResponseDto(updatedUser);
   }
 
   @Delete(':id')
@@ -56,5 +59,11 @@ export class UserController {
     if (!result) {
       throw new NotFoundException('User not found');
     }
+  }
+
+  private toResponseDto(user: User): UserResponseDto {
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 }
