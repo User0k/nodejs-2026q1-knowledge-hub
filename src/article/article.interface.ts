@@ -15,3 +15,9 @@ export enum ArticleStatus {
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
 }
+
+export interface ArticleFilters {
+  status?: string;
+  categoryId?: string;
+  tag?: string;
+}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ArticleDatabase, ArticleFilters } from './article.db';
+import { ArticleDatabase } from './article.db';
 import { ArticleDto } from './article.dto';
+import { ArticleFilters } from './article.interface';
 
 @Injectable()
 export class ArticleService {

@@ -6,5 +6,6 @@ import { ArticleDatabase } from './article.db';
 @Module({
   controllers: [ArticleController],
   providers: [ArticleService, ArticleDatabase],
+  exports: [ArticleDatabase],
 })
 export class ArticleModule {}

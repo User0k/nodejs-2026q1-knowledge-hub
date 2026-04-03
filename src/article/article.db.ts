@@ -1,13 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { Article } from './article.interface';
+import { Article, ArticleFilters } from './article.interface';
 import { ArticleDto } from './article.dto';
-
-export interface ArticleFilters {
-  status?: string;
-  categoryId?: string;
-  tag?: string;
-}
 
 @Injectable()
 export class ArticleDatabase {
