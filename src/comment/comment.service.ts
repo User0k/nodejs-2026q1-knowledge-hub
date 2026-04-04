@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CommentDatabase } from './comment.db';
+import { CommentDatabase } from '../database/comment.database';
 import { CommentDto } from './comment.dto';
 
 @Injectable()

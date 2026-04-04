@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentDto } from './comment.dto';
-import { ArticleDatabase } from '../article/article.db';
+import { ArticleDatabase } from '../database/article.database';
 
 @Controller('/comment')
 export class CommentController {

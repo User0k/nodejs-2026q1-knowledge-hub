@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { CategoryDto } from './category.dto';
+import { CategoryDto } from '../category/category.dto';
 
 @Injectable()
 export class CategoryDatabase {

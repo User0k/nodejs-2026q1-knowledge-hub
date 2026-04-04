@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { Comment } from './comment.interface';
-import { CommentDto } from './comment.dto';
+import { Comment } from '../comment/comment.interface';
+import { CommentDto } from '../comment/comment.dto';
 
 @Injectable()
 export class CommentDatabase {
@@ -36,5 +36,21 @@ export class CommentDatabase {
 
   delete(id: string) {
     return this.comments.delete(id);
+  }
+
+  deleteByAuthorId(authorId: string) {
+    this.comments.forEach((comment, id) => {
+      if (comment.authorId === authorId) {
+        this.comments.delete(id);
+      }
+    });
+  }
+
+  deleteByArticleId(articleId: string) {
+    this.comments.forEach((comment, id) => {
+      if (comment.articleId === articleId) {
+        this.comments.delete(id);
+      }
+    });
   }
 }

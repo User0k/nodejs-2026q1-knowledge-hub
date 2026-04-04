@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { Article, ArticleFilters } from './article.interface';
-import { ArticleDto } from './article.dto';
+import { Article, ArticleFilters } from '../article/article.interface';
+import { ArticleDto } from '../article/article.dto';
 
 @Injectable()
 export class ArticleDatabase {
@@ -68,5 +68,39 @@ export class ArticleDatabase {
 
   delete(id: string) {
     return this.articles.delete(id);
+  }
+
+  findByAuthorId(authorId: string): Article[] {
+    return [...this.articles.values()].filter((a) => a.authorId === authorId);
+  }
+
+  setAuthorIdToNull(authorId: string) {
+    this.articles.forEach((article, id) => {
+      if (article.authorId === authorId) {
+        this.articles.set(id, {
+          ...article,
+          authorId: null,
+          updatedAt: Date.now(),
+        });
+      }
+    });
+  }
+
+  findByCategoryId(categoryId: string): Article[] {
+    return [...this.articles.values()].filter(
+      (a) => a.categoryId === categoryId,
+    );
+  }
+
+  setCategoryIdToNull(categoryId: string) {
+    this.articles.forEach((article, id) => {
+      if (article.categoryId === categoryId) {
+        this.articles.set(id, {
+          ...article,
+          categoryId: null,
+          updatedAt: Date.now(),
+        });
+      }
+    });
   }
 }

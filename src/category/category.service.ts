@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CategoryDatabase } from './category.db';
+import { CategoryDatabase } from '../database/category.database';
 import { CategoryDto } from './category.dto';
+import { ArticleDatabase } from '../database/article.database';
 
 @Injectable()
 export class CategoryService {
-  constructor(private db: CategoryDatabase) {}
+  constructor(
+    private db: CategoryDatabase,
+    private articleDb: ArticleDatabase,
+  ) {}
 
   async getAll() {
     return this.db.getAll();
@@ -28,6 +32,7 @@ export class CategoryService {
   }
 
   async delete(id: string) {
+    this.articleDb.setCategoryIdToNull(id);
     return this.db.delete(id);
   }
 }

@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ArticleDatabase } from './article.db';
+import { ArticleDatabase } from '../database/article.database';
 import { ArticleDto } from './article.dto';
 import { ArticleFilters } from './article.interface';
+import { CommentDatabase } from '../database/comment.database';
 
 @Injectable()
 export class ArticleService {
-  constructor(private db: ArticleDatabase) {}
+  constructor(
+    private db: ArticleDatabase,
+    private commentDb: CommentDatabase,
+  ) {}
 
   async getAll(filters?: ArticleFilters) {
     return this.db.getAll(filters);
@@ -28,6 +32,7 @@ export class ArticleService {
   }
 
   async delete(id: string) {
+    this.commentDb.deleteByArticleId(id);
     return this.db.delete(id);
   }
 }

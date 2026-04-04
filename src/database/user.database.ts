@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './user.interface';
-import { CreateUserDto, UpdatePasswordDto } from './user.dto';
+import { User } from '../user/user.interface';
+import { CreateUserDto, UpdatePasswordDto } from '../user/user.dto';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
@@ -51,5 +51,9 @@ export class UserDatabase {
 
   delete(id: string) {
     return this.users.delete(id);
+  }
+
+  getAllByAuthorId(authorId: string): User[] {
+    return [...this.users.values()].filter((u) => u.id === authorId);
   }
 }
