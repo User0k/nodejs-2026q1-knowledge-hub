@@ -6,8 +6,8 @@ A REST API platform for managing articles, categories, and comments built with N
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v22.14.0 or higher) - [Download & Install Node.js](https://nodejs.org/en/download/)
-- **npm** or **pnpm** - Comes with Node.js
+- **Node.js** (v24.10.0 or higher) - [Download & Install Node.js](https://nodejs.org/en/download/)
+- **npm** (comes with Node.js)
 - **Git** - [Download & Install Git](https://git-scm.com/downloads)
 
 ## Installation
