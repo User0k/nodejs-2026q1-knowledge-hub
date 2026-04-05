@@ -6,8 +6,8 @@ A REST API platform for managing articles, categories, and comments built with N
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v22.14.0 or higher) - [Download & Install Node.js](https://nodejs.org/en/download/)
-- **npm** or **pnpm** - Comes with Node.js
+- **Node.js** (v24.10.0 or higher) - [Download & Install Node.js](https://nodejs.org/en/download/)
+- **npm** (comes with Node.js)
 - **Git** - [Download & Install Git](https://git-scm.com/downloads)
 
 ## Installation
@@ -51,6 +51,12 @@ TOKEN_REFRESH_EXPIRE_TIME=24h
 
 ### Development Mode
 
+In order, you can run the server via
+
+```bash
+npm start
+```
+
 Run the application with hot-reload for development:
 
 ```bash
@@ -81,67 +87,53 @@ Once the server is running (default port: 4000), you can access:
 - **API Base URL**: `http://localhost:4000`
 - **OpenAPI/Swagger Documentation**: `http://localhost:4000/doc/`
 
-The Swagger UI provides interactive documentation where you can test API endpoints directly from your browser.
-
 ## API Documentation
-
-### Base URL
-
-All API endpoints are prefixed with `/api`
-
-### Authentication
-
-| Method | Endpoint            | Description                       |
-| ------ | ------------------- | --------------------------------- |
-| POST   | `/api/auth/signup`  | Register a new user               |
-| POST   | `/api/auth/login`   | Login and receive JWT tokens      |
-| POST   | `/api/auth/refresh` | Refresh access and refresh tokens |
 
 ### Users
 
-| Method | Endpoint        | Description          | Access         |
-| ------ | --------------- | -------------------- | -------------- |
-| GET    | `/api/user`     | Get all users        | Authenticated  |
-| GET    | `/api/user/:id` | Get user by ID       | Authenticated  |
-| POST   | `/api/user`     | Create a new user    | Admin only     |
-| PUT    | `/api/user/:id` | Update user password | Owner or Admin |
-| DELETE | `/api/user/:id` | Delete user          | Admin only     |
+| Method | Endpoint        | Description          | 
+| ------ | --------------- | -------------------- | 
+| GET    | `/user`         | Get all users        | 
+| GET    | `/user/:id`     | Get user by ID       | 
+| POST   | `/user`         | Create a new user    | 
+| PUT    | `/api/user/:id` | Update user password | 
+| DELETE | `/api/user/:id` | Delete user          | 
 
 ### Categories
 
-| Method | Endpoint            | Description           | Access        |
-| ------ | ------------------- | --------------------- | ------------- |
-| GET    | `/api/category`     | Get all categories    | Authenticated |
-| GET    | `/api/category/:id` | Get category by ID    | Authenticated |
-| POST   | `/api/category`     | Create a new category | Admin only    |
-| PUT    | `/api/category/:id` | Update category       | Admin only    |
-| DELETE | `/api/category/:id` | Delete category       | Admin only    |
+| Method | Endpoint            | Description           | 
+| ------ | ------------------- | --------------------- | 
+| GET    | `/category`         | Get all categories    |
+| GET    | `/category/:id`     | Get category by ID    | 
+| POST   | `/category`         | Create a new category | 
+| PUT    | `/category/:id`     | Update category       | 
+| DELETE | `/category/:id`     | Delete category       | 
 
 ### Articles
 
-| Method | Endpoint           | Description                           | Access         |
-| ------ | ------------------ | ------------------------------------- | -------------- |
-| GET    | `/api/article`     | Get all articles (supports filtering) | Authenticated  |
-| GET    | `/api/article/:id` | Get article by ID                     | Authenticated  |
-| POST   | `/api/article`     | Create a new article                  | Editor/Admin   |
-| PUT    | `/api/article/:id` | Update article                        | Owner or Admin |
-| DELETE | `/api/article/:id` | Delete article                        | Admin only     |
+| Method | Endpoint           | Description                           | 
+| ------ | ------------------ | ------------------------------------- | 
+| GET    | `/article`         | Get all articles (supports filtering) |
+| GET    | `/article/:id`     | Get article by ID                     | 
+| POST   | `/article`         | Create a new article                  | 
+| PUT    | `/article/:id`     | Update article                        | 
+| DELETE | `/article/:id`     | Delete article                        | 
 
-**Filtering Options** for `GET /api/article`:
+**Filtering Options** for `GET /article`:
 
 - `status`: Filter by article status (`draft`, `published`, `archived`)
 - `categoryId`: Filter by category UUID
 - `tag`: Filter by tag name (can be repeated: `?tag=nodejs&tag=typescript`)
 
-Example: `GET /api/article?status=published&tag=nodejs&categoryId=uuid`
+Example: `GET /article?status=published&tag=nodejs&categoryId=uuid`
 
 ### Comments
 
-| Method | Endpoint                      | Description                 | Access         |
-| ------ | ----------------------------- | --------------------------- | -------------- |
-| GET    | `/api/comment?articleId={id}` | Get comments for an article | Authenticated  |
-| POST   | `/api/comment`                | Create a new comment        | Editor/Admin   |
-| DELETE | `/api/comment/:id`            | Delete comment              | Owner or Admin |
+| Method | Endpoint                      | Description                 | 
+| ------ | ----------------------------- | --------------------------- | 
+| GET    | `/comment?articleId={id}`     | Get comments for an article |
+| POST   | `/comment`                    | Create a new comment        | 
+| DELETE | `/comment/:id`                | Delete comment              | 
 
 ### Data Models
 
