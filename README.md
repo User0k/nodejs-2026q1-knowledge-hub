@@ -91,33 +91,33 @@ Once the server is running (default port: 4000), you can access:
 
 ### Users
 
-| Method | Endpoint        | Description          | 
-| ------ | --------------- | -------------------- | 
-| GET    | `/user`         | Get all users        | 
-| GET    | `/user/:id`     | Get user by ID       | 
-| POST   | `/user`         | Create a new user    | 
-| PUT    | `/api/user/:id` | Update user password | 
-| DELETE | `/api/user/:id` | Delete user          | 
+| Method | Endpoint        | Description          |
+| ------ | --------------- | -------------------- |
+| GET    | `/user`         | Get all users        |
+| GET    | `/user/:id`     | Get user by ID       |
+| POST   | `/user`         | Create a new user    |
+| PUT    | `/api/user/:id` | Update user password |
+| DELETE | `/api/user/:id` | Delete user          |
 
 ### Categories
 
-| Method | Endpoint            | Description           | 
-| ------ | ------------------- | --------------------- | 
-| GET    | `/category`         | Get all categories    |
-| GET    | `/category/:id`     | Get category by ID    | 
-| POST   | `/category`         | Create a new category | 
-| PUT    | `/category/:id`     | Update category       | 
-| DELETE | `/category/:id`     | Delete category       | 
+| Method | Endpoint        | Description           |
+| ------ | --------------- | --------------------- |
+| GET    | `/category`     | Get all categories    |
+| GET    | `/category/:id` | Get category by ID    |
+| POST   | `/category`     | Create a new category |
+| PUT    | `/category/:id` | Update category       |
+| DELETE | `/category/:id` | Delete category       |
 
 ### Articles
 
-| Method | Endpoint           | Description                           | 
-| ------ | ------------------ | ------------------------------------- | 
-| GET    | `/article`         | Get all articles (supports filtering) |
-| GET    | `/article/:id`     | Get article by ID                     | 
-| POST   | `/article`         | Create a new article                  | 
-| PUT    | `/article/:id`     | Update article                        | 
-| DELETE | `/article/:id`     | Delete article                        | 
+| Method | Endpoint       | Description                           |
+| ------ | -------------- | ------------------------------------- |
+| GET    | `/article`     | Get all articles (supports filtering) |
+| GET    | `/article/:id` | Get article by ID                     |
+| POST   | `/article`     | Create a new article                  |
+| PUT    | `/article/:id` | Update article                        |
+| DELETE | `/article/:id` | Delete article                        |
 
 **Filtering Options** for `GET /article`:
 
@@ -129,11 +129,11 @@ Example: `GET /article?status=published&tag=nodejs&categoryId=uuid`
 
 ### Comments
 
-| Method | Endpoint                      | Description                 | 
-| ------ | ----------------------------- | --------------------------- | 
-| GET    | `/comment?articleId={id}`     | Get comments for an article |
-| POST   | `/comment`                    | Create a new comment        | 
-| DELETE | `/comment/:id`                | Delete comment              | 
+| Method | Endpoint                  | Description                 |
+| ------ | ------------------------- | --------------------------- |
+| GET    | `/comment?articleId={id}` | Get comments for an article |
+| POST   | `/comment`                | Create a new comment        |
+| DELETE | `/comment/:id`            | Delete comment              |
 
 ### Data Models
 
@@ -185,6 +185,26 @@ Example: `GET /article?status=published&tag=nodejs&categoryId=uuid`
   "authorId": "uuid | null",
   "createdAt": "timestamp"
 }
+```
+
+## Docker
+
+This application can be run using Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+Once running:
+
+- **API**: `http://localhost:4000`
+- **Swagger Documentation**: `http://localhost:4000/doc/`
+- **Adminer** (debug profile only): `http://localhost:8080`
+
+To include Adminer for database debugging:
+
+```bash
+docker-compose --profile debug up --build
 ```
 
 ## Testing

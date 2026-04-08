@@ -1,0 +1,72 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '${PORT:-4000}:${PORT:-4000}'
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - knowledge-hub-network
+    restart: on-failure
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:${PORT:-4000}/',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-knowledgehub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret123}
+      POSTGRES_DB: ${POSTGRES_DB:-knowledgehub}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - knowledge-hub-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-knowledgehub} -d ${POSTGRES_DB:-knowledgehub}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  adminer:
+    image: adminer
+    ports:
+      - '8080:8080'
+    networks:
+      - knowledge-hub-network
+    profiles:
+      - debug
+    restart: unless-stopped
+
+networks:
+  knowledge-hub-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
