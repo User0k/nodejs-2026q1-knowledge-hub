@@ -207,6 +207,10 @@ To include Adminer for database debugging:
 docker-compose --profile debug up --build
 ```
 
+[Link to uploaded image](https://hub.docker.com/repository/docker/user0k/knowledge-hub/general) on Docker Hub
+
+The security scan report and commands for it can be found in `security-scan.md` file
+
 ## Testing
 
 > [!NOTE]  

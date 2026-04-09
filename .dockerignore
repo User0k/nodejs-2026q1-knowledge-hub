@@ -1,8 +1,12 @@
 node_modules
+dist
+test
 .git
-logs/
-*.log
 .env
-dist/
-.vscode/
-.idea/
+.gitignore
+README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+*.ts
