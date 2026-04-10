@@ -21,9 +21,7 @@ export class ArticleDatabase {
       if (filters.tag) {
         where.tags = {
           some: {
-            tag: {
-              name: filters.tag,
-            },
+            name: filters.tag,
           },
         };
       }

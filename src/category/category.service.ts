@@ -23,7 +23,7 @@ export class CategoryService {
   }
 
   async update(id: string, categoryDto: CategoryDto) {
-    const existingCategory = this.db.getOne(id);
+    const existingCategory = await this.db.getOne(id);
     if (!existingCategory) {
       return null;
     }
