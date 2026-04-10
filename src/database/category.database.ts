@@ -1,50 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { PrismaService } from './prisma.service';
 import { CategoryDto } from '../category/category.dto';
 
 @Injectable()
 export class CategoryDatabase {
-  categories: Map<string, CategoryDto>;
-  constructor() {
-    this.categories = new Map();
+  constructor(private prisma: PrismaService) {}
+
+  async getAll(): Promise<CategoryDto[]> {
+    return await this.prisma.category.findMany();
   }
 
-  getAll() {
-    return [...this.categories.values()];
+  async getOne(id: string): Promise<CategoryDto | null> {
+    return (
+      (await this.prisma.category.findUnique({
+        where: { id },
+      })) ?? null
+    );
   }
 
-  getOne(id: string) {
-    return this.categories.get(id);
+  async create(props: CategoryDto): Promise<CategoryDto> {
+    return await this.prisma.category.create({
+      data: {
+        name: props.name,
+        description: props.description,
+      },
+    });
   }
 
-  create(props: CategoryDto) {
-    const id = randomUUID();
-    const { description, name } = props;
-    const category = {
-      id,
-      description,
-      name,
-    };
+  async update(id: string, props: CategoryDto): Promise<CategoryDto | null> {
+    const category = await this.prisma.category.update({
+      where: { id },
+      data: {
+        name: props.name,
+        description: props.description,
+      },
+    });
 
-    this.categories.set(id, category);
-    return category;
+    return category ?? null;
   }
 
-  update(id: string, props: CategoryDto) {
-    const category = this.categories.get(id);
-    if (!category) return null;
-
-    const newCategory = {
-      id,
-      description: props.description,
-      name: props.name,
-    };
-
-    this.categories.set(id, newCategory);
-    return newCategory;
-  }
-
-  delete(id: string) {
-    return this.categories.delete(id);
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.category.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
