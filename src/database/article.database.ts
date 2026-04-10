@@ -1,106 +1,162 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { PrismaService } from './prisma.service';
 import { Article, ArticleFilters } from '../article/article.interface';
 import { ArticleDto } from '../article/article.dto';
+import { Tag } from '@prisma/client';
 
 @Injectable()
 export class ArticleDatabase {
-  articles: Map<string, Article>;
-  constructor() {
-    this.articles = new Map();
-  }
+  constructor(private prisma: PrismaService) {}
 
-  getAll(filters?: ArticleFilters): Article[] {
-    let articles = [...this.articles.values()];
+  async getAll(filters?: ArticleFilters): Promise<Article[]> {
+    const where: any = {};
 
     if (filters) {
       if (filters.status) {
-        articles = articles.filter((a) => a.status === filters.status);
+        where.status = filters.status;
       }
       if (filters.categoryId) {
-        articles = articles.filter((a) => a.categoryId === filters.categoryId);
+        where.categoryId = filters.categoryId;
       }
       if (filters.tag) {
-        articles = articles.filter((a) => a.tags.includes(filters.tag));
+        where.tags = {
+          some: {
+            tag: {
+              name: filters.tag,
+            },
+          },
+        };
       }
     }
 
-    return articles;
+    const articles = await this.prisma.article.findMany({
+      where,
+      include: { tags: true },
+    });
+
+    return articles.map((article) => this.articleToResponse(article));
   }
 
-  getOne(id: string): Article | null {
-    return this.articles.get(id);
-  }
+  async getOne(id: string): Promise<Article | null> {
+    const article = await this.prisma.article.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
 
-  create(props: ArticleDto): Article {
-    const id = randomUUID();
-    const { content, title, authorId, categoryId, status, tags } = props;
-    const createdAt = Date.now();
-    const article: Article = {
-      id,
-      content,
-      title,
-      authorId,
-      categoryId,
-      status,
-      tags,
-      createdAt,
-      updatedAt: createdAt,
-    };
-
-    this.articles.set(id, article);
-    return article;
-  }
-
-  update(id: string, props: ArticleDto): Article | null {
-    const article = this.articles.get(id);
     if (!article) return null;
 
-    const newArticle: Article = {
-      ...article,
-      ...props,
-      updatedAt: Date.now(),
+    return this.articleToResponse(article);
+  }
+
+  async create(props: ArticleDto): Promise<Article> {
+    const tags = props.tags || [];
+
+    const tagConnectOrCreate = tags.map((tagName) => ({
+      where: { name: tagName },
+      create: { name: tagName },
+    }));
+
+    const article = await this.prisma.article.create({
+      data: {
+        title: props.title,
+        content: props.content,
+        status: props.status,
+        authorId: props.authorId ?? null,
+        categoryId: props.categoryId ?? null,
+        tags: {
+          connectOrCreate: tagConnectOrCreate,
+        },
+      },
+      include: { tags: true },
+    });
+
+    return this.articleToResponse(article);
+  }
+
+  async update(id: string, props: ArticleDto): Promise<Article | null> {
+    const article = await this.prisma.article.findUnique({ where: { id } });
+    if (!article) return null;
+
+    const tags = props.tags || [];
+    const tagConnectOrCreate = tags.map((tagName) => ({
+      where: { name: tagName },
+      create: { name: tagName },
+    }));
+
+    const updatedArticle = await this.prisma.article.update({
+      where: { id },
+      data: {
+        title: props.title,
+        content: props.content,
+        status: props.status,
+        authorId: props.authorId ?? null,
+        categoryId: props.categoryId ?? null,
+        tags: {
+          set: [],
+          connectOrCreate: tagConnectOrCreate,
+        },
+      },
+      include: { tags: true },
+    });
+
+    return this.articleToResponse(updatedArticle);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.article.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async findByAuthorId(authorId: string): Promise<Article[]> {
+    const articles = await this.prisma.article.findMany({
+      where: { authorId },
+      include: {
+        tags: true,
+      },
+    });
+
+    return articles.map((article) => this.articleToResponse(article));
+  }
+
+  async setAuthorIdToNull(authorId: string): Promise<void> {
+    await this.prisma.article.updateMany({
+      where: { authorId },
+      data: { authorId: null },
+    });
+  }
+
+  async findByCategoryId(categoryId: string): Promise<Article[]> {
+    const articles = await this.prisma.article.findMany({
+      where: { categoryId },
+      include: { tags: true },
+    });
+
+    return articles.map((article) => this.articleToResponse(article));
+  }
+
+  async setCategoryIdToNull(categoryId: string): Promise<void> {
+    await this.prisma.article.updateMany({
+      where: { categoryId },
+      data: { categoryId: null },
+    });
+  }
+
+  private articleToResponse(
+    articleToModify: Omit<Article, 'tags' | 'createdAt' | 'updatedAt'> & {
+      tags: Tag[];
+      createdAt: Date;
+      updatedAt: Date;
+    },
+  ): Article {
+    return {
+      ...articleToModify,
+      tags: articleToModify.tags.map((tag) => tag.name),
+      createdAt: Number(articleToModify.createdAt),
+      updatedAt: Number(articleToModify.updatedAt),
     };
-
-    this.articles.set(id, newArticle);
-    return newArticle;
-  }
-
-  delete(id: string) {
-    return this.articles.delete(id);
-  }
-
-  findByAuthorId(authorId: string): Article[] {
-    return [...this.articles.values()].filter((a) => a.authorId === authorId);
-  }
-
-  setAuthorIdToNull(authorId: string) {
-    this.articles.forEach((article, id) => {
-      if (article.authorId === authorId) {
-        this.articles.set(id, {
-          ...article,
-          authorId: null,
-          updatedAt: Date.now(),
-        });
-      }
-    });
-  }
-
-  findByCategoryId(categoryId: string): Article[] {
-    return [...this.articles.values()].filter(
-      (a) => a.categoryId === categoryId,
-    );
-  }
-
-  setCategoryIdToNull(categoryId: string) {
-    this.articles.forEach((article, id) => {
-      if (article.categoryId === categoryId) {
-        this.articles.set(id, {
-          ...article,
-          categoryId: null,
-          updatedAt: Date.now(),
-        });
-      }
-    });
   }
 }
