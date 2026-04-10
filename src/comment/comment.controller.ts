@@ -40,7 +40,8 @@ export class CommentController {
   async create(@Body() commentDto: CommentDto) {
     const { articleId } = commentDto;
 
-    if (!this.articleDb.articles.has(articleId)) {
+    const article = await this.articleDb.getOne(articleId);
+    if (!article) {
       throw new UnprocessableEntityException('Article not found');
     }
 

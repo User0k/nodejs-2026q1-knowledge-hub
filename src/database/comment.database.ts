@@ -1,56 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { PrismaService } from './prisma.service';
 import { Comment } from '../comment/comment.interface';
 import { CommentDto } from '../comment/comment.dto';
 
 @Injectable()
 export class CommentDatabase {
-  comments: Map<string, Comment>;
-  constructor() {
-    this.comments = new Map();
+  constructor(private prisma: PrismaService) {}
+
+  async getAll(articleId: string): Promise<Comment[]> {
+    const comments = await this.prisma.comment.findMany({
+      where: { articleId },
+    });
+    return comments.map((comment) => ({
+      ...comment,
+      createdAt: Number(comment.createdAt),
+    }));
   }
 
-  getAll(articleId: string): Comment[] {
-    return [...this.comments.values()].filter((c) => c.articleId === articleId);
-  }
+  async getOne(id: string): Promise<Comment | null> {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id },
+    });
 
-  getOne(id: string): Comment | null {
-    return this.comments.get(id);
-  }
-
-  create(props: CommentDto): Comment {
-    const id = randomUUID();
-    const { content, articleId, authorId } = props;
-    const createdAt = Date.now();
-    const comment: Comment = {
-      id,
-      content,
-      articleId,
-      authorId,
-      createdAt,
+    if (!comment) return null;
+    return {
+      ...comment,
+      createdAt: Number(comment.createdAt),
     };
-
-    this.comments.set(id, comment);
-    return comment;
   }
 
-  delete(id: string) {
-    return this.comments.delete(id);
-  }
-
-  deleteByAuthorId(authorId: string) {
-    this.comments.forEach((comment, id) => {
-      if (comment.authorId === authorId) {
-        this.comments.delete(id);
-      }
+  async create(props: CommentDto): Promise<Comment> {
+    const comment = await this.prisma.comment.create({
+      data: {
+        content: props.content,
+        articleId: props.articleId,
+        authorId: props.authorId,
+      },
     });
+    return {
+      ...comment,
+      createdAt: Number(comment.createdAt),
+    };
   }
 
-  deleteByArticleId(articleId: string) {
-    this.comments.forEach((comment, id) => {
-      if (comment.articleId === articleId) {
-        this.comments.delete(id);
-      }
-    });
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.category.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async deleteByAuthorId(authorId: string): Promise<void> {
+    await this.prisma.comment.deleteMany({ where: { authorId } });
+  }
+
+  async deleteByArticleId(articleId: string): Promise<void> {
+    await this.prisma.comment.deleteMany({ where: { articleId } });
   }
 }
