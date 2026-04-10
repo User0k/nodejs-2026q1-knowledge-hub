@@ -1,59 +1,86 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from './prisma.service';
 import { User } from '../user/user.interface';
 import { CreateUserDto, UpdatePasswordDto } from '../user/user.dto';
-import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class UserDatabase {
-  users: Map<string, User>;
-  constructor() {
-    this.users = new Map();
-  }
+  constructor(private prisma: PrismaService) {}
 
-  getAll(): User[] {
-    return [...this.users.values()];
-  }
-
-  getOne(id: string): User | null {
-    return this.users.get(id);
-  }
-
-  create(props: CreateUserDto): User {
-    const id = randomUUID();
-    const { login, password, role } = props;
-    const createdAt = Date.now();
-    const user: User = {
-      id,
-      login,
-      password,
-      role,
-      createdAt,
-      updatedAt: createdAt,
-    };
-
-    this.users.set(id, user);
-    return user;
-  }
-
-  updatePassword(id: string, props: UpdatePasswordDto): User | null {
-    const user = this.users.get(id);
-    if (!user) return null;
-
-    const newUser: User = {
+  async getAll(): Promise<User[]> {
+    return (await this.prisma.user.findMany()).map((user) => ({
       ...user,
-      password: props.newPassword,
-      updatedAt: Date.now(),
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
+    }));
+  }
+
+  async getOne(id: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) return null;
+    return {
+      ...user,
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
     };
-
-    this.users.set(id, newUser);
-    return newUser;
   }
 
-  delete(id: string) {
-    return this.users.delete(id);
+  async getByLogin(login: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { login },
+    });
+
+    if (!user) return null;
+    return {
+      ...user,
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
+    };
   }
 
-  getAllByAuthorId(authorId: string): User[] {
-    return [...this.users.values()].filter((u) => u.id === authorId);
+  async create(props: CreateUserDto): Promise<User> {
+    const user = await this.prisma.user.create({
+      data: {
+        login: props.login,
+        password: props.password,
+        role: props.role,
+      },
+    });
+    return {
+      ...user,
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
+    };
+  }
+
+  async updatePassword(
+    id: string,
+    props: UpdatePasswordDto,
+  ): Promise<User | null> {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: props.newPassword,
+      },
+    });
+
+    if (!user) return null;
+    return {
+      ...user,
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
+    };
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.user.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

@@ -45,7 +45,7 @@ export class CommentDatabase {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await this.prisma.category.delete({ where: { id } });
+      await this.prisma.comment.delete({ where: { id } });
       return true;
     } catch {
       return false;

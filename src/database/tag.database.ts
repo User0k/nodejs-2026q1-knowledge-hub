@@ -38,7 +38,7 @@ export class TagDatabase {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await this.prisma.category.delete({ where: { id } });
+      await this.prisma.tag.delete({ where: { id } });
       return true;
     } catch {
       return false;

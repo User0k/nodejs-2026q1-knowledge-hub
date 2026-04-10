@@ -25,7 +25,7 @@ export class UserService {
   }
 
   async updatePassword(id: string, updateDto: UpdatePasswordDto) {
-    const user = this.db.getOne(id);
+    const user = await this.db.getOne(id);
     if (!user) {
       return null;
     }
@@ -38,13 +38,8 @@ export class UserService {
   }
 
   async delete(id: string) {
-    // Set authorId to null in all articles authored by this user
-    this.articleDb.setAuthorIdToNull(id);
-
-    // Delete all comments authored by this user
-    this.commentDb.deleteByAuthorId(id);
-
-    // Delete the user
+    await this.articleDb.setAuthorIdToNull(id);
+    await this.commentDb.deleteByAuthorId(id);
     return this.db.delete(id);
   }
 }
