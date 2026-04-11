@@ -120,13 +120,6 @@ export class ArticleDatabase {
     return articles.map((article) => this.articleToResponse(article));
   }
 
-  async setAuthorIdToNull(authorId: string): Promise<void> {
-    await this.prisma.article.updateMany({
-      where: { authorId },
-      data: { authorId: null },
-    });
-  }
-
   async findByCategoryId(categoryId: string): Promise<Article[]> {
     const articles = await this.prisma.article.findMany({
       where: { categoryId },
@@ -134,13 +127,6 @@ export class ArticleDatabase {
     });
 
     return articles.map((article) => this.articleToResponse(article));
-  }
-
-  async setCategoryIdToNull(categoryId: string): Promise<void> {
-    await this.prisma.article.updateMany({
-      where: { categoryId },
-      data: { categoryId: null },
-    });
   }
 
   private articleToResponse(

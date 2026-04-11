@@ -24,7 +24,7 @@ export class ArticleService {
   }
 
   async update(id: string, updateDto: ArticleDto) {
-    const article = this.db.getOne(id);
+    const article = await this.db.getOne(id);
     if (!article) {
       return null;
     }
@@ -32,7 +32,6 @@ export class ArticleService {
   }
 
   async delete(id: string) {
-    this.commentDb.deleteByArticleId(id);
     return this.db.delete(id);
   }
 }

@@ -32,7 +32,6 @@ export class CategoryService {
   }
 
   async delete(id: string) {
-    this.articleDb.setCategoryIdToNull(id);
     return this.db.delete(id);
   }
 }

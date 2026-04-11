@@ -35,7 +35,7 @@ model Article {
 
   authorId   String?
   categoryId String?
-  author     User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   comments   Comment[] 
   tags       Tag[]  

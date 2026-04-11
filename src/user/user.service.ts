@@ -1,16 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from './user.dto';
 import { UserDatabase } from '../database/user.database';
-import { ArticleDatabase } from '../database/article.database';
-import { CommentDatabase } from '../database/comment.database';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private db: UserDatabase,
-    private articleDb: ArticleDatabase,
-    private commentDb: CommentDatabase,
-  ) {}
+  constructor(private db: UserDatabase) {}
 
   async getAll() {
     return this.db.getAll();
@@ -38,8 +32,6 @@ export class UserService {
   }
 
   async delete(id: string) {
-    await this.articleDb.setAuthorIdToNull(id);
-    await this.commentDb.deleteByAuthorId(id);
     return this.db.delete(id);
   }
 }

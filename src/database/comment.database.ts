@@ -51,12 +51,4 @@ export class CommentDatabase {
       return false;
     }
   }
-
-  async deleteByAuthorId(authorId: string): Promise<void> {
-    await this.prisma.comment.deleteMany({ where: { authorId } });
-  }
-
-  async deleteByArticleId(articleId: string): Promise<void> {
-    await this.prisma.comment.deleteMany({ where: { articleId } });
-  }
 }
