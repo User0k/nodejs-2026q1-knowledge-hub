@@ -1,13 +1,19 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role, Status } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function seed() {
+  await prisma.comment.deleteMany();
+  await prisma.article.deleteMany();
+  await prisma.tag.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.user.deleteMany();
+
   const admin = await prisma.user.create({
     data: {
       login: 'admin',
       password: 'admin123',
-      role: 'admin',
+      role: Role.admin,
     },
   });
 
@@ -15,7 +21,7 @@ async function seed() {
     data: {
       login: 'editor',
       password: 'editor123',
-      role: 'editor',
+      role: Role.editor,
     },
   });
 
@@ -40,88 +46,75 @@ async function seed() {
     },
   });
 
-  await prisma.tag.create({ data: { name: 'AI' } });
-  await prisma.tag.create({ data: { name: 'Machine Learning' } });
-  await prisma.tag.create({ data: { name: 'Programming' } });
-  await prisma.tag.create({ data: { name: 'Health Tips' } });
-  await prisma.tag.create({ data: { name: 'Research' } });
+  const tagAI = await prisma.tag.create({ data: { name: 'AI' } });
+  const tagML = await prisma.tag.create({ data: { name: 'Machine Learning' } });
+  const tagProgramming = await prisma.tag.create({
+    data: { name: 'Programming' },
+  });
+  const tagHealth = await prisma.tag.create({ data: { name: 'Health Tips' } });
+  const tagResearch = await prisma.tag.create({ data: { name: 'Research' } });
 
   const article1 = await prisma.article.create({
     data: {
       title: 'The future of AI',
       content: 'Artificial Intelligence blah-blah-blah...',
-      status: 'published',
+      status: Status.published,
       authorId: admin.id,
       categoryId: techCategory.id,
       tags: {
-        connectOrCreate: [
-          { where: { name: 'AI' }, create: { name: 'AI' } },
-          {
-            where: { name: 'Machine Learning' },
-            create: { name: 'Machine Learning' },
-          },
-        ],
+        connect: [{ id: tagAI.id }, { id: tagML.id }],
+      },
+    },
+  });
+
+  const article2 = await prisma.article.create({
+    data: {
+      title: 'Programming best practices',
+      content: 'Learn the best practices for writing code...',
+      status: Status.draft,
+      authorId: editor.id,
+      categoryId: techCategory.id,
+      tags: {
+        connect: [{ id: tagProgramming.id }],
       },
     },
   });
 
   const article3 = await prisma.article.create({
     data: {
-      title: 'Programming best practices',
-      content: 'Learn the best practices for writing code...',
-      status: 'draft',
-      authorId: editor.id,
-      categoryId: techCategory.id,
-      tags: {
-        connectOrCreate: [
-          { where: { name: 'Programming' }, create: { name: 'Programming' } },
-        ],
-      },
-    },
-  });
-
-  await prisma.article.create({
-    data: {
       title: 'New cancer research',
       content: 'Scientists have made a significant discovery...',
-      status: 'published',
+      status: Status.published,
       authorId: admin.id,
       categoryId: scienceCategory.id,
       tags: {
-        connectOrCreate: [
-          { where: { name: 'Research' }, create: { name: 'Research' } },
-        ],
+        connect: [{ id: tagResearch.id }],
       },
     },
   });
 
-  await prisma.article.create({
+  const article4 = await prisma.article.create({
     data: {
       title: 'Healthy habits',
       content: 'Discover the secrets to maintaining a healthy diet...',
-      status: 'published',
+      status: Status.published,
       authorId: editor.id,
       categoryId: healthCategory.id,
       tags: {
-        connectOrCreate: [
-          { where: { name: 'Health Tips' }, create: { name: 'Health Tips' } },
-        ],
+        connect: [{ id: tagHealth.id }],
       },
     },
   });
 
-  await prisma.article.create({
+  const article5 = await prisma.article.create({
     data: {
       title: 'The impact of technology on society',
       content: 'How technology is changing our daily lives...',
-      status: 'archived',
+      status: Status.archived,
       authorId: admin.id,
       categoryId: techCategory.id,
       tags: {
-        connectOrCreate: [
-          { where: { name: 'AI' }, create: { name: 'AI' } },
-          { where: { name: 'Programming' }, create: { name: 'Programming' } },
-        ],
+        connect: [{ id: tagAI.id }, { id: tagProgramming.id }],
       },
     },
   });
@@ -137,7 +130,7 @@ async function seed() {
   await prisma.comment.create({
     data: {
       content: 'LOL',
-      articleId: article1.id,
+      articleId: article2.id,
       authorId: admin.id,
     },
   });
@@ -150,12 +143,28 @@ async function seed() {
     },
   });
 
+  await prisma.comment.create({
+    data: {
+      content: 'Very informative!',
+      articleId: article4.id,
+      authorId: editor.id,
+    },
+  });
+
+  await prisma.comment.create({
+    data: {
+      content: 'Thanks for sharing',
+      articleId: article5.id,
+      authorId: admin.id,
+    },
+  });
+
   console.log('Database seeded successfully!');
 }
 
 seed()
   .catch((e) => {
-    console.error(e);
+    console.error('Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {

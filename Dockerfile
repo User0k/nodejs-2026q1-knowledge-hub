@@ -15,6 +15,7 @@ ENV NODE_ENV=production
 ENV PORT=4000
 
 COPY package*.json ./
+COPY doc ./doc
 
 RUN npm ci --omit=dev && npm cache clean --force && \
     rm -rf node_modules/prisma \
