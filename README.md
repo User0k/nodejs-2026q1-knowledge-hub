@@ -9,6 +9,8 @@ Before you begin, ensure you have the following installed:
 - **Node.js** (v24.10.0 or higher) - [Download & Install Node.js](https://nodejs.org/en/download/)
 - **npm** (comes with Node.js)
 - **Git** - [Download & Install Git](https://git-scm.com/downloads)
+- **Docker** - [Download & Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose** - Included with Docker Desktop
 
 ## Installation
 
@@ -40,12 +42,115 @@ Edit the `.env` file with your preferred text editor:
 
 ```env
 PORT=4000
-CRYPT_SALT=10
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=knowledge_hub
+POSTGRES_PORT=5432
 JWT_SECRET_KEY=your-secret-key-here
 JWT_SECRET_REFRESH_KEY=your-refresh-secret-key-here
 TOKEN_EXPIRE_TIME=1h
 TOKEN_REFRESH_EXPIRE_TIME=24h
 ```
+
+## 4. Docker Building and Running
+
+#### Basic Setup
+
+Build and run the application with a single command:
+
+```bash
+docker-compose up --build
+```
+
+#### Background Execution
+
+Run in detached mode (background):
+
+```bash
+docker-compose up --build -d
+```
+
+#### Database Initialization
+
+The database will be automatically created and migrated on first run. To reset the database:
+
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+
+#### Stopping Containers
+
+```bash
+docker-compose down
+```
+
+#### Removing Volumes
+
+```bash
+docker-compose down -v
+```
+
+#### Health Check Status
+
+```bash
+docker-compose ps
+```
+
+#### Production Considerations
+
+The default setup is optimized for production with:
+
+- Multi-stage builds
+- Health checks
+- Volume persistence for database data
+
+[Link to uploaded image](https://hub.docker.com/repository/docker/user0k/knowledge-hub/general) on Docker Hub
+
+The security scan report and commands for it can be found in `security-scan.md` file
+
+## 5. Running Database
+
+#### Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+#### Run Database Migrations
+
+```bash
+npx prisma migrate dev
+```
+
+#### Create New Migration
+
+```bash
+npx prisma migrate dev --name migration-name
+```
+
+#### Reset Database
+
+```bash
+npx prisma migrate reset
+```
+
+### Database Seeding
+
+#### Run Database Seed
+
+```bash
+npx prisma db seed
+```
+
+This will create:
+
+- Admin user
+- Editor user
+- Categories: Technology, Science, Health
+- Tags: AI, Machine Learning, Programming, Health Tips, Research
+- Sample articles with different statuses
+- Sample comments
 
 ## Running the Application
 
@@ -186,30 +291,6 @@ Example: `GET /article?status=published&tag=nodejs&categoryId=uuid`
   "createdAt": "timestamp"
 }
 ```
-
-## Docker
-
-This application can be run using Docker Compose:
-
-```bash
-docker-compose up --build
-```
-
-Once running:
-
-- **API**: `http://localhost:4000`
-- **Swagger Documentation**: `http://localhost:4000/doc/`
-- **Adminer** (debug profile only): `http://localhost:8080`
-
-To include Adminer for database debugging:
-
-```bash
-docker-compose --profile debug up --build
-```
-
-[Link to uploaded image](https://hub.docker.com/repository/docker/user0k/knowledge-hub/general) on Docker Hub
-
-The security scan report and commands for it can be found in `security-scan.md` file
 
 ## Testing
 
