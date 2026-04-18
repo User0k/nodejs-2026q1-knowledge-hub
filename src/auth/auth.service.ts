@@ -3,22 +3,25 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { SignupDto, LoginDto } from '../auth/auth.dto';
+import { User } from 'src/user/user.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
   async signup(signupDto: SignupDto) {
     const existingUser = await this.userService.findByLogin(signupDto.login);
     if (existingUser) {
-      throw new BadRequestException('Login is already taken');
+      throw new BadRequestException('Login is already in use');
     }
 
     const hashedPassword = await bcrypt.hash(signupDto.password, 10);
@@ -48,9 +51,46 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    // to do
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      });
+
+      const user = await this.userService.findById(payload.userId);
+      if (!user) {
+        throw new ForbiddenException('Invalid refresh token');
+      }
+
+      return this.generateTokens(user);
+    } catch (error) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
   }
 
-  private async generateTokens(user: any) {
-    // to do
+  private async generateTokens(user: User) {
+    const payload = {
+      userId: user.id,
+      login: user.login,
+      role: user.role,
+    };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        { ...payload },
+        {
+          secret: this.configService.get('JWT_SECRET')!,
+          expiresIn: '15m',
+        },
+      ),
+      this.jwtService.signAsync(
+        { ...payload },
+        {
+          secret: this.configService.get('JWT_REFRESH_SECRET')!,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+
+    return { accessToken, refreshToken };
   }
+}
