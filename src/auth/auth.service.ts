@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { SignupDto, LoginDto } from '../auth/auth.dto';
-import { User } from 'src/user/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +20,7 @@ export class AuthService {
   async signup(signupDto: SignupDto) {
     const existingUser = await this.userService.findByLogin(signupDto.login);
     if (existingUser) {
-      throw new BadRequestException('Login is already in use');
+      throw new BadRequestException('Login is already taken');
     }
 
     const hashedPassword = await bcrypt.hash(signupDto.password, 10);
@@ -53,7 +52,7 @@ export class AuthService {
   async refreshToken(refreshToken: string) {
     try {
       const payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.configService.get('JWT_REFRESH_SECRET'),
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
       const user = await this.userService.findById(payload.userId);
@@ -67,7 +66,7 @@ export class AuthService {
     }
   }
 
-  private async generateTokens(user: User) {
+  private async generateTokens(user: any) {
     const payload = {
       userId: user.id,
       login: user.login,
@@ -78,14 +77,14 @@ export class AuthService {
       this.jwtService.signAsync(
         { ...payload },
         {
-          secret: this.configService.get('JWT_SECRET')!,
+          secret: this.configService.get<string>('JWT_SECRET')!,
           expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
         { ...payload },
         {
-          secret: this.configService.get('JWT_REFRESH_SECRET')!,
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET')!,
           expiresIn: '7d',
         },
       ),
