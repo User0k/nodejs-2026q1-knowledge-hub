@@ -77,7 +77,16 @@ export class UserDatabase {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await this.prisma.user.delete({ where: { id } });
+      await this.prisma.$transaction([
+        this.prisma.article.updateMany({
+          where: { authorId: id },
+          data: { authorId: null },
+        }),
+        this.prisma.comment.deleteMany({
+          where: { authorId: id },
+        }),
+        this.prisma.user.delete({ where: { id } }),
+      ]);
       return true;
     } catch {
       return false;
