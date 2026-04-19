@@ -41,10 +41,10 @@ Edit the `.env` file with your preferred text editor:
 ```env
 PORT=4000
 CRYPT_SALT=10
-JWT_SECRET_KEY=your-secret-key-here
-JWT_SECRET_REFRESH_KEY=your-refresh-secret-key-here
-TOKEN_EXPIRE_TIME=1h
-TOKEN_REFRESH_EXPIRE_TIME=24h
+JWT_SECRET=your_access_token_secret
+JWT_REFRESH_SECRET=your_refresh_token_secret
+JWT_ACCESS_TTL=15m
+JWT_REFRESH_TTL=7d
 ```
 
 ## Running the Application
