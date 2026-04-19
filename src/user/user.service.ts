@@ -34,4 +34,12 @@ export class UserService {
   async delete(id: string) {
     return this.db.delete(id);
   }
+
+  async findById(id: string) {
+    return this.db.getOne(id);
+  }
+
+  async findByLogin(login: string) {
+    return this.db.getByLogin(login);
+  }
 }
