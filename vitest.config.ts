@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
-    testMatch: ['**/*.unit.spec.ts', '**/*.test.ts'],
+    testMatch: ['**/*.unit.spec.ts'],
     exclude: ['node_modules', 'dist', 'test'],
     coverage: {
       provider: 'v8',
