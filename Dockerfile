@@ -2,7 +2,7 @@
 FROM node:24-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm i
 COPY . .
 RUN npx prisma generate
 RUN npm run build
@@ -17,7 +17,7 @@ ENV PORT=4000
 COPY package*.json ./
 COPY doc ./doc
 
-RUN npm ci --omit=dev && npm cache clean --force && \
+RUN npm i --omit=dev && npm cache clean --force && \
     rm -rf node_modules/prisma \
            node_modules/typescript \
            node_modules/effect \
